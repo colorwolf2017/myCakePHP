@@ -231,7 +231,7 @@ return [
             'port' => getenv(strtoupper(getenv("DATABASE_SERVICE_NAME"))."_SERVICE_PORT"),
             'username' => getenv("DATABASE_USER"),
             'password' => getenv("DATABASE_PASSWORD"),
-            'database' => getenv("DATABASE_NAME"),
+            'database' => getenv("DATABASE_NAME2"),
             'encoding' => 'utf8',
             'timezone' => 'UTC',
             'flags' => [],
