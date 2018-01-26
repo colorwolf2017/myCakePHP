@@ -10,6 +10,12 @@ namespace App\Controller;
 use App\Controller\AppController;
 class VisitLogsController extends AppController
 {
+    public function initialize()
+    {
+        parent::initialize();
+        $this->loadComponent('Paginator');
+        $this->loadComponent('Flash');
+    }
     public function index()
     {
         $this->loadComponent('Paginator');
