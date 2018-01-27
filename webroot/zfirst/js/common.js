@@ -1,7 +1,7 @@
 var Common=
 {
-	strTargetHost:"http://localhost/",
-    strJSHost:"http://localhost/webroot_mycakephp/",
+	strTargetHost:"https://colorwolf2017.000webhostapp.com/",
+    strJSHost:"https://localhost/",
 	getTargetHost:function()
 	{
 		return this.strTargetHost;
@@ -44,7 +44,7 @@ var Common=
 	},
 
 	//add script to head
-	addScriptToHead:function(strID,strURL,bCache,documentWhich)
+	addScriptToHead:function(strURL,strID,bCache,documentWhich)
 	{
 		//check strURL has host name
 		if(strURL.indexOf("http")==-1)
@@ -100,7 +100,7 @@ var Common=
 						if(testFunction==null||testFunction())
 						{
 							window.clearInterval(iIDTimerTemp);
-							if(typeof(callBackFunction)=="function")
+							if(typeof(callBackFunction)==="function")
 							{
 								callBackFunction();
 							}

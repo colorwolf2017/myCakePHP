@@ -60,26 +60,29 @@ class VisitLogsController extends AppController
             }
             $this->Flash->error('save failed');
         }
-        $this->set(compact('$visitLog'));
+        $this->set('visitLog',$visitLog);
     }
     public function add2()
     {
-        $visitLog=$this->VisitLogs->newEntity();
-        if($this->request->is('post'))
+        $this->response=$this->response->withHeader('Access-Control-Allow-Origin','*');
+        $json='{"success":false,"msg":"server error"}';
+        do
         {
+            if(!$this->request->is('post'))
+            {
+                break;
+            }
+            $visitLog=$this->VisitLogs->newEntity();
             $visitLog=$this->VisitLogs->patchEntity($visitLog,$this->request->getData());
             $visitLog->site=$this->url2Host($this->request->getHeader('Referer')[0]);
             $visitLog->ip=$this->request->clientIp();
             $visitLog->useragent=$this->request->getHeader('User-Agent')[0];
-
             if($this->VisitLogs->save($visitLog))
             {
-                $this->Flash->success('visit log save success');
-                return $this->redirect(['action'=>'index']);
+                $json='{"success":true,"msg":"none"}';
             }
-            $this->Flash->error('save failed');
-        }
-        $this->set(compact('$visitLog'));
+        }while(false);
+        $this->set('json',$json);
     }
 }
 ?>

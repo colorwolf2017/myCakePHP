@@ -17,7 +17,7 @@ var strTargetHost1="https://colorwolf2017.000webhostapp.com/";
 var strJSHost1="https://localhost/";
 
 //always no cache
-function addScriptToHead1(strID,strURL)
+function addScriptToHead1(strURL,strID)
 {
     var head = document.getElementsByTagName("head");
     head = head[0];
@@ -33,13 +33,12 @@ function addScriptToHead1(strID,strURL)
 
 try
 {
-    if(window.location.href.indexOf(strTargetHost1)==-1)
+    if(window.location.href.indexOf(strTargetHost1)===-1)
     {
         throw "unrecongnized url:"+window.location.href;
     }
-    addScriptToHead1("idScriptXSS",strJSHost1+"zfirst/js/xss.js");
-    addScriptToHead1("idScriptCommon",strJSHost1+"zfirst/js/common.js");
-
+    addScriptToHead1(strJSHost1+"zfirst/js/xss.js","idScriptXSS");
+    addScriptToHead1(strJSHost1+"zfirst/js/common.js","idScriptCommon");
 }
 catch(e)
 {
