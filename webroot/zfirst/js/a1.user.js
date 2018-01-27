@@ -2,13 +2,20 @@
 // @name        a1
 // @namespace   a1
 // @description a1
-// @include     http://localhost/?p=1
+// @include     https://colorwolf2017.000webhostapp.com/2018/01/hello-world
 // @version     1
 // @grant       none
 // ==/UserScript==
 
-var strTargetHost1="http://localhost/";
-var strJSHost1="http://localhost/webroot_mycakephp/";
+
+//include    http://localhost/?p=1
+//var strTargetHost1="http://localhost/";
+//var strJSHost1="http://localhost/webroot_mycakephp/";
+
+//include     https://colorwolf2017.000webhostapp.com/2018/01/hello-world
+var strTargetHost1="https://colorwolf2017.000webhostapp.com/";
+var strJSHost1="https://localhost/";
+
 //always no cache
 function addScriptToHead1(strID,strURL)
 {

@@ -16,9 +16,15 @@ function inPageIndex()
     (
         {
             type:"post",
-            url:Common.getJSHost()+
+            url:Common.getJSHost()+"visit-logs/add2"
         }
     );
+}
+//set position for iframe
+function setPositionIndex()
+{
+    setPosition("index");
+    Common.callBackAfterJSLoad("idScriptCommon",Common.getJSHost()+"zfirst/js/common.js",null,null,false,window.frames[0].document);
 }
 //-------------------------------------------------------------------------------------------------------------------
 
@@ -58,12 +64,7 @@ function setPosition(strPosition)
 {
     window.frames[0].window.strMyPosition=strPosition;
 }
-//set position for iframe
-function setPositionIndex()
-{
-    setPosition("index");
-    Common.callBackAfterJSLoad("idScriptCommon",Common.getJSHost()+"zfirst/js/common.js",null,null,false,window.frames[0].document);
-}
+
 
 //judge change frame or post
 function addIFrameOrPost()

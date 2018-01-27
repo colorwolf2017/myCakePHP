@@ -6,6 +6,7 @@ create table visit_logs
   username varchar(50),
   created datetime,
   modified datetime,
+  useragent varchar(200) default '';
   reserved1 varchar(500) default '',
   reserved2 varchar(500) default '',
   reserved3 varchar(500) default '',
