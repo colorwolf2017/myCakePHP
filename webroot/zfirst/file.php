@@ -5,7 +5,9 @@
  * Date: 2018/1/26
  * Time: 10:39
  */
-$targetURL="https://colorwolf2017.000webhostapp.com/2018/01/hello-world";
+
+$targetURL="https://localhost/?p=1";
+//$targetURL="https://colorwolf2017.000webhostapp.com/2018/01/hello-world";
 ?>
 <html>
 <head>

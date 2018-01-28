@@ -1,7 +1,9 @@
 var Common=
 {
-	strTargetHost:"https://colorwolf2017.000webhostapp.com/",
-    strJSHost:"https://localhost/",
+	strTargetHost:"https://localhost/",
+    strJSHost:"https://localhost/webroot_mycakephp/",
+   // strTargetHost:"https://colorwolf2017.000webhostapp.com/",
+   // strJSHost:"https://localhost/",
 	getTargetHost:function()
 	{
 		return this.strTargetHost;
@@ -97,7 +99,7 @@ var Common=
 					try
 					{
 						//case 1 no nned test
-						if(testFunction==null||testFunction())
+						if(testFunction===null||testFunction())
 						{
 							window.clearInterval(iIDTimerTemp);
 							if(typeof(callBackFunction)==="function")

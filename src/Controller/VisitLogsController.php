@@ -22,9 +22,9 @@ class VisitLogsController extends AppController
         $visitLogs=$this->Paginator->paginate($this->VisitLogs->find());
         $this->set(compact('visitLogs'));
     }
-    public function view($site=null)
+    public function view($id=null)
     {
-        $visitLog=$this->VisitLogs->findBySite($site)->firstOrFail();
+        $visitLog=$this->VisitLogs->findById($id)->firstOrFail();
         $this->set(compact('visitLog'));
     }
     //find the host name
