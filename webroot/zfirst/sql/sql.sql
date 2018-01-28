@@ -23,11 +23,11 @@ create table comments
 	postsite varchar(200),
 	postcontent text,
 	postip varchar(20),
-  posttime varchar(50),
-  postto varchar(200),
+    posttime varchar(50),
+    postto varchar(200),
 
-  username varchar(50),
-  ip varchar(20),
+    username varchar(50),
+    ip varchar(20),
 	created datetime,
 	modified datetime
 );
