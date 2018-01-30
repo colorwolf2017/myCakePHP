@@ -10,6 +10,10 @@ namespace App\Controller;
 use App\Controller\AppController;
 class VisitLogsController extends AppController
 {
+    public $paginate=
+    [
+        'maxLimit'=>200
+    ];
     public function initialize()
     {
         parent::initialize();

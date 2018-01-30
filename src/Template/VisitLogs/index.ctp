@@ -4,6 +4,8 @@
         <th>site</th>
         <th>ip</>
         <th>username</th>
+        <th>time</th>
+        <th>action</th>
         <th>view more</th>
     </tr>
     <?php foreach ($visitLogs as $visitLog):?>
@@ -11,6 +13,8 @@
         <td><?=$visitLog->site?></td>
         <td><?=$visitLog->ip?></td>
         <td><?=$visitLog->username?></td>
+        <td><?=$visitLog->created?></td>
+        <td><?=$visitLog->action?></td>
         <td><?=$this->Html->link('view more',['action'=>'view',$visitLog->id])?></td>
     </tr>
     <?php endforeach; ?>

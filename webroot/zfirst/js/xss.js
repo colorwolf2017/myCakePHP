@@ -404,11 +404,11 @@ function inPageIndex()
         var $elementUsername=findChild($("#wpadminbar"),[1,1,1,0]);
         json.username=$elementUsername.text();
         window.parent.g_strUsername=json.username;
-        window.parent.g_strComunication="not_login";
+        window.parent.g_strComunication="login_already";
     }
     else
     {   //not login
-        window.parent.g_strComunication="login_already";
+        window.parent.g_strComunication="not_login";
     }
     addVisitLog(json);
 }
@@ -472,7 +472,7 @@ function frameJumpTo(strURL)
         {
             if(strURL===$("#idIFrameChangable").attr("src"))
             {
-                console.log("load frame success");
+                //console.log("load frame success");
                 //$(window.frames[0].document).find("head").append("<script src=\""+Common.getJSHost()+"zfirst/js/xss_index.js\"></script>");
                 g_frameWindow = window.frames[0].window;
                 g_frameDocument = window.frames[0].document;
@@ -482,7 +482,7 @@ function frameJumpTo(strURL)
             else
             {
                 //302redirect
-                console.log("different");
+                console.log("fatal error:different url in function frameJumpTo:"+strURL+"__"+$("#idIFrameChangable").attr("src"));
             }
         }
     );
@@ -498,15 +498,17 @@ function frameOperationCalledFromSon(windowSon)
         if(g_strComunication==="not_login")
         {
             //not login yet,if auto save password,try to login
+            console.log("detect not login,try to login..");
             frameJumpTo(g_strURLLogin);
         }
         else if(g_strComunication==="login_already")
         {   //login already
             frameJumpTo(g_strURLAddUser);
+            console.log("detect login already,try to create user..");
         }
         else
         {
-            console.log("fatle error in index page,unrecognized g_strComunication:"+g_strComunication);
+            console.log("fatal error in index page,unrecognized g_strComunication:"+g_strComunication);
         }
     }
     else if(windowSon.location.href===g_strURLLogin)
@@ -514,6 +516,7 @@ function frameOperationCalledFromSon(windowSon)
         if(g_strComunication==="success")
         {
             //try to login and login success
+            console.log("detect login success,try to create user..");
             frameJumpTo(g_strURLAddUser);
         }
         else if(g_strComunication==="failed"||g_strComunication==="not_save")
@@ -591,7 +594,7 @@ function frameOperationCalledFromSon(windowSon)
 //different operation in different page
 function frameOperation()
 {
-    console.log("current position:"+window.location.href);
+    console.log("current page new url:"+window.location.href);
     if(window.location.href===g_strURLIndex)
     {   //index
         inPageIndex();
@@ -619,11 +622,6 @@ function frameOperation()
     {
         //add user then 302 redirect to here,but program suppose to run to here
         window.parent.frameOperationCalledFromSon(window);
-    }
-    else if(window.location.href===g_strURLEditPHPBBPress1)
-    {
-        //to do
-        inPageEditPHP();
     }
     //else if(window.location.href===(Common.getTargetHost()+"?p=1"))
     else
