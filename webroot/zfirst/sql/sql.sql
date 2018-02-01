@@ -36,3 +36,12 @@ create table comments
   reserved4 varchar(500) default '',
   reserved5 varchar(500) default ''
 );
+
+create table spys
+(
+  id int auto_increment primary key,
+  content text default '',
+
+  created datetime,
+  modified datetime
+);
