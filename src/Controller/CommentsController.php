@@ -8,6 +8,14 @@
 namespace App\Controller;
 class CommentsController extends AppController
 {
+    public $paginate=
+    [
+        'limit'=>1000,
+        'order'=>
+        [
+            'Comments.posttime'=>'desc'
+        ]
+    ];
     public function initialize()
     {
         parent::initialize();
@@ -16,7 +24,8 @@ class CommentsController extends AppController
     }
     public function index()
     {
-        $comments=$this->Paginator->paginate($this->Comments->find());
+        //$comments=$this->Paginator->paginate($this->Comments->find());
+        $comments=$this->paginate($this->Comments);
         $this->set(compact('comments'));
     }
     public function add()

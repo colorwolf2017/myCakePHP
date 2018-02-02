@@ -74,4 +74,15 @@ class SpysController extends AppController
             $this->set('spy',$spy);
         }
     }
+    //first
+    public function first()
+    {
+        if($this->request->is(['post','get']))
+        {
+            $this->response=$this->response->withHeader('Access-Control-Allow-Origin','*');
+            $spy=$this->Spys->find()->firstOrFail();
+            $strSpy=$spy->content;
+            $this->set('strSpy',$strSpy);
+        }
+    }
 }
