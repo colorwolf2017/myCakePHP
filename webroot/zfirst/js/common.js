@@ -1,7 +1,8 @@
 var Common=
 {
     //strTargetHost:"https://www.mytest.com/",
-    strJSHost:"https://test1-mycakephp.1d35.starter-us-east-1.openshiftapps.com/",
+    //strJSHost:"https://test1-mycakephp.1d35.starter-us-east-1.openshiftapps.com/",
+    strJSHost:"https://colorwolf2017.000webhostapp.com/webroot_mycakephp/",
 	//strTargetHost:"https://localhost/",
     //strJSHost:"https://localhost/webroot_mycakephp/",
     strTargetHost:"https://colorwolf2017.000webhostapp.com/",

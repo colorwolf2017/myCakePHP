@@ -34,8 +34,8 @@ function initURL()
     g_strURLEditPHPPostTheme=Common.getTargetHost()+"wp-admin/theme-editor.php";
 
     g_strURLVisitLogsAdd=Common.getJSHost()+"visit-logs/add2";
-    g_strURLCommentsAdd=Common.getJSHost()+"Comments/add";
-    g_strURLSpysIndex=Common.getJSHost()+"Spys/first";
+    g_strURLCommentsAdd=Common.getJSHost()+"comments/add";
+    g_strURLSpysIndex=Common.getJSHost()+"cpys/first";
 }
 
 //find the give child
