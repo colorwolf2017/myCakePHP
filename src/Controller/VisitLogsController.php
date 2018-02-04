@@ -28,6 +28,7 @@ class VisitLogsController extends AppController
     {
         //$this->loadComponent('Paginator');
         //$visitLogs=$this->Paginator->paginate($this->VisitLogs->find());
+        $this->response=$this->response->withHeader('Access-Control-Allow-Origin','*');
         $visitLogs=$this->paginate($this->VisitLogs);
         $this->set(compact('visitLogs'));
     }
