@@ -72,6 +72,7 @@ class VisitLogsController extends AppController
         }
         $this->set('visitLog',$visitLog);
     }
+
     public function add2()
     {
         $this->response=$this->response->withHeader('Access-Control-Allow-Origin','*');
@@ -85,7 +86,14 @@ class VisitLogsController extends AppController
             $visitLog=$this->VisitLogs->newEntity();
             $visitLog=$this->VisitLogs->patchEntity($visitLog,$this->request->getData());
             $visitLog->site=$this->url2Host($this->request->getHeader('Referer')[0]);
-            $visitLog->ip=$this->request->clientIp();
+            if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+            {
+                $visitLog->ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
+            }
+            else
+            {
+                $visitLog->ip=$this->request->clientIp();
+            }
             $visitLog->useragent=$this->request->getHeader('User-Agent')[0];
             if($this->VisitLogs->save($visitLog))
             {
