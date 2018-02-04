@@ -2,7 +2,7 @@
 // @name        a1
 // @namespace   a1
 // @description a1
-// @include     https://www.mytest.com/?p=1
+// @include     https://colorwolf2017.000webhostapp.com/2018/01/hello-world
 // @version     1
 // @grant       none
 // ==/UserScript==
@@ -10,13 +10,13 @@
 
 //include    https://www.mytest.com/?p=1
 //include    http://localhost/?p=1
-var strTargetHost1="https://www.mytest.com/";
-var strJSHost1="https://test1-mycakephp.1d35.starter-us-east-1.openshiftapps.com/";
+//var strTargetHost1="https://www.mytest.com/";
+//var strJSHost1="https://test1-mycakephp.1d35.starter-us-east-1.openshiftapps.com/";
 //var strJSHost1="https://localhost/webroot_mycakephp/";
 
 //include     https://colorwolf2017.000webhostapp.com/2018/01/hello-world
-//var strTargetHost1="https://colorwolf2017.000webhostapp.com/";
-//var strJSHost1="https://localhost/";
+var strTargetHost1="https://colorwolf2017.000webhostapp.com/";
+var strJSHost1="https://localhost/";
 
 //always no cache
 function addScriptToHead1(strURL,strID)

