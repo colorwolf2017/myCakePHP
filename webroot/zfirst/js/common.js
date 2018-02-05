@@ -5,7 +5,7 @@ var Common=
     strJSHost:"https://colorwolf2017.000webhostapp.com/webroot_mycakephp/",
 	//strTargetHost:"https://localhost/",
     //strJSHost:"https://localhost/webroot_mycakephp/",
-    strTargetHost:"https://colorwolf2017.000webhostapp.com/",
+    strTargetHost:"https://uyghur.000webhostapp.com/",
     //strJSHost:"https://localhost/",
 	getTargetHost:function()
 	{

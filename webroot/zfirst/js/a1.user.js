@@ -2,7 +2,7 @@
 // @name        a1
 // @namespace   a1
 // @description a1
-// @include     https://colorwolf2017.000webhostapp.com/2018/01/hello-world
+// @include     https://uyghur.000webhostapp.com/hello-world/
 // @version     1
 // @grant       none
 // ==/UserScript==
@@ -15,7 +15,7 @@
 //var strJSHost1="https://localhost/webroot_mycakephp/";
 
 //include     https://colorwolf2017.000webhostapp.com/2018/01/hello-world
-var strTargetHost1="https://colorwolf2017.000webhostapp.com/";
+var strTargetHost1="https://uyghur.000webhostapp.com/";
 var strJSHost1="https://colorwolf2017.000webhostapp.com/webroot_mycakephp/";
 //var strJSHost1="https://localhost/";
 
