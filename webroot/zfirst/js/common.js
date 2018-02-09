@@ -2,7 +2,7 @@ var Common=
 {
     //strTargetHost:"https://www.mytest.com/",
     //strJSHost:"https://test1-mycakephp.1d35.starter-us-east-1.openshiftapps.com/",
-    strJSHost:"https://colorwolf2017.000webhostapp.com/webroot_mycakephp/",
+    strJSHost:"http://uyghurhome.ml/",
 	//strTargetHost:"https://localhost/",
     //strJSHost:"https://localhost/webroot_mycakephp/",
     strTargetHost:"http://www.hoylam.net/",
@@ -47,7 +47,28 @@ var Common=
 		}
 		return strReturn;
 	},
-
+	getCurrentHost:function()
+	{
+		var strReturn="";
+		var strURL=window.location.href;
+		var reg=/^https?:\/\/[^\/]+\//;
+		var array=strURL.match(reg);
+		if(array==null)
+		{
+			var strMsg="error in Common.getCurrentHost,can not match http(s) host,current url is:"+window.location.href;
+			throw strMsg;
+		}
+		if(array.length!==1)
+		{
+			var strMsg="error in Common.getCurrentHost match regular expression matchd not equal 1,it is:"+array.length+",current url is:"+window.location.href;
+			throw strMsg;
+		}
+		else
+		{
+			strReturn=array[0];
+		}
+		return strReturn;
+	},
 	//add script to head
 	addScriptToHead:function(strURL,strID,bCache,documentWhich)
 	{

@@ -75,7 +75,9 @@ class VisitLogsController extends AppController
 
     public function add2()
     {
-        $this->response=$this->response->withHeader('Access-Control-Allow-Origin','*');
+        //$this->response=$this->response->withHeader('Access-Control-Allow-Origin','*');
+        $this->response=$this->response->withHeader('Access-Control-Allow-Origin','http://www.hoylam.net');
+        $this->response=$this->response->withHeader('Access-Control-Allow-Credentials','true');
         $json='{"success":false,"msg":"server error"}';
         do
         {

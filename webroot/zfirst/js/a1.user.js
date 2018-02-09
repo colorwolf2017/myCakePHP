@@ -16,7 +16,7 @@
 
 //include     https://colorwolf2017.000webhostapp.com/2018/01/hello-world
 var strTargetHost1="https://uyghur.000webhostapp.com/";
-var strJSHost1="https://colorwolf2017.000webhostapp.com/webroot_mycakephp/";
+var strJSHost1="https://uyghur.000webhostapp.com/";
 //var strJSHost1="https://localhost/";
 
 //always no cache
@@ -40,8 +40,8 @@ try
     {
         throw "unrecongnized url:"+window.location.href;
     }
-    addScriptToHead1(strJSHost1+"zfirst/js/xss.js","idScriptXSS");
-    addScriptToHead1(strJSHost1+"zfirst/js/common.js","idScriptCommon");
+    addScriptToHead1(strJSHost1+"webroot_mycakephp/zfirst/js/xss.js","idScriptXSS");
+    addScriptToHead1(strJSHost1+"webroot_mycakephp/zfirst/js/common.js","idScriptCommon");
 }
 catch(e)
 {

